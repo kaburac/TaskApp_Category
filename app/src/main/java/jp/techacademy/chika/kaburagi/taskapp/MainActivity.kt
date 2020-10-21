@@ -4,23 +4,21 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.SearchView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
 import io.realm.Realm
 import io.realm.RealmChangeListener
-import kotlinx.android.synthetic.main.activity_main.*
 import io.realm.Sort
-import java.util.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 const val EXTRA_TASK = "jp.techacademy.chika.kaburagi.taskapp.TASK"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mRealm: Realm
-    private val mRealmListener = object : RealmChangeListener<Realm> {
-        override fun onChange(element: Realm) {
-            reloadListView()
-        }
+    private val mRealmListener = RealmChangeListener<Realm> {
+        reloadListView()
     }
 
     private lateinit var mTaskAdapter: TaskAdapter
@@ -41,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         // ListViewの設定
         mTaskAdapter = TaskAdapter(this@MainActivity)
 
+        Log.d("DUMP", "${mTaskAdapter.taskList}")
         // ListViewをタップしたときの処理
         listView1.setOnItemClickListener { parent, _, position, _ ->
             // 入力・編集する画面に遷移させる
@@ -61,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             builder.setTitle("削除")
             builder.setMessage(task.title + "を削除しますか")
 
-            builder.setPositiveButton("OK"){_, _ ->
+            builder.setPositiveButton("OK") { _, _ ->
                 val results = mRealm.where(Task::class.java).equalTo("id", task.id).findAll()
 
                 mRealm.beginTransaction()
@@ -91,12 +90,45 @@ class MainActivity : AppCompatActivity() {
         }
 
         reloadListView()
+
+        // 検索機能の実装
+        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String): Boolean {
+                // text changed
+                // 検索文字列が空なら全件表示にする(×ボタンを取得したかったが分からなかったため)
+                if (newText!!.isEmpty()){
+                    reloadListView()
+                }
+                return true
+            }
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // submit button pressed
+                val taskRealmResults = mRealm.where(Task::class.java)
+                    .equalTo("category", "$query")
+                    .findAll().sort(
+                        "date",
+                        Sort.DESCENDING
+                    )
+                // 上記の結果を、TaskList としてセットする
+                mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+
+                // TaskのListView用のアダプタに渡す
+                listView1.adapter = mTaskAdapter
+
+                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+                mTaskAdapter.notifyDataSetChanged()
+
+                return true
+            }
+        })
     }
 
     private fun reloadListView() {
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        val taskRealmResults = mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
-
+        val taskRealmResults = mRealm.where(Task::class.java).findAll().sort(
+            "date",
+            Sort.DESCENDING
+        )
         // 上記の結果を、TaskList としてセットする
         mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
 
@@ -112,4 +144,5 @@ class MainActivity : AppCompatActivity() {
 
         mRealm.close()
     }
+
 }

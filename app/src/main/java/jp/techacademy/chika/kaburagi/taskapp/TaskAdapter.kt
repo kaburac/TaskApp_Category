@@ -2,6 +2,7 @@ package jp.techacademy.chika.kaburagi.taskapp
 
 import android.R
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,9 @@ import java.util.*
 
 class TaskAdapter(context: Context): BaseAdapter() {
     private val mLayoutInflater: LayoutInflater = LayoutInflater.from(context)
+
     var taskList = mutableListOf<Task>()
+
 
     override fun getCount(): Int {
         return taskList.size
@@ -36,8 +39,7 @@ class TaskAdapter(context: Context): BaseAdapter() {
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE)
         val date = taskList[position].date
-        textView2.text = simpleDateFormat.format(date)
-
+        textView2.text = simpleDateFormat.format(date) + "  ${taskList[position].category}"
         return view
     }
 }

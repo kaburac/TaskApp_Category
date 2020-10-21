@@ -41,12 +41,25 @@
         android:layout_alignParentRight="true"
         android:text="--:--"
         style="@style/Widget.AppCompat.Button.Borderless" />
+
+    <EditText
+        android:id="@+id/category_edit_text"
+        android:layout_width="265dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/times_button"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:hint="カテゴリー" />
+
     <Button
         android:id="@+id/done_button"
         android:layout_width="96dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/times_button"
         android:layout_alignParentRight="true"
+        android:layout_marginStart="0dp"
+        android:layout_toEndOf="@+id/category_edit_text"
         android:text="決定" />
 
 </RelativeLayout>

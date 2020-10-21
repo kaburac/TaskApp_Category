@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -87,6 +88,8 @@ class InputActivity : AppCompatActivity() {
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
 
+            Log.d("DAMP","")
+
             val calendar = Calendar.getInstance()
             calendar.time = mTask!!.date
             mYear = calendar.get(Calendar.YEAR)
@@ -100,6 +103,7 @@ class InputActivity : AppCompatActivity() {
 
             date_button.text = dateString
             times_button.text = timeString
+            category_edit_text.setText(mTask!!.category)
         }
     }
 
@@ -125,12 +129,14 @@ class InputActivity : AppCompatActivity() {
 
         val title = title_edit_text.text.toString()
         val content = content_edit_text.text.toString()
+        val category = category_edit_text.text.toString()
 
         mTask!!.title = title
         mTask!!.contents = content
         val calendar = GregorianCalendar(mYear, mMonth, mDay, mHour, mMinute)
         val date = calendar.time
         mTask!!.date = date
+        mTask!!.category = category
 
         realm.copyToRealmOrUpdate(mTask!!)
         realm.commitTransaction()
